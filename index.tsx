@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { 
   CheckCircle2, Circle, Trash2, ChevronDown, ChevronRight, 
   Sparkles, Loader2, Plus, Tag, Flag, Layout, ListTodo, 
@@ -29,7 +29,9 @@ interface Task {
 
 // --- SERVICES ---
 const getAIClient = () => {
-  return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // Use a fallback to prevent crashes if process is undefined
+  const apiKey = (window as any).process?.env?.API_KEY || '';
+  return new GoogleGenAI({ apiKey });
 };
 
 const breakdownTask = async (taskText: string): Promise<string[]> => {
@@ -193,7 +195,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const saved = localStorage.getItem('zentask-tasks');
-    if (saved) setTasks(JSON.parse(saved));
+    if (saved) {
+      try {
+        setTasks(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to load tasks", e);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -202,7 +210,8 @@ const App: React.FC = () => {
 
   const fetchInsight = async () => {
     setIsLoadingInsight(true);
-    setInsight(await getDailyInsights(tasks));
+    const result = await getDailyInsights(tasks);
+    setInsight(result);
     setIsLoadingInsight(false);
   };
 
@@ -269,5 +278,8 @@ const App: React.FC = () => {
   );
 };
 
-const root = (ReactDOM as any).createRoot(document.getElementById('root'));
-root.render(<App />);
+const container = document.getElementById('root');
+if (container) {
+  const root = createRoot(container);
+  root.render(<App />);
+}

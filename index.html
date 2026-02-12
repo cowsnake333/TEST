@@ -7,6 +7,8 @@
   <title>ZenTask AI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Babel Standalone: Compiles TSX/JSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
@@ -43,20 +45,34 @@
     }
   </style>
 
+  <!-- Define process.env before any module loads to prevent ReferenceErrors -->
+  <script>
+    window.process = {
+      env: {
+        API_KEY: "" // Will be injected by the environment if available
+      }
+    };
+  </script>
+
 <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0/client",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "lucide-react": "https://esm.sh/lucide-react@0.463.0",
     "@google/genai": "https://esm.sh/@google/genai@1.41.0",
-    "react/": "https://esm.sh/react@^19.2.4/"
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
   }
 }
 </script>
 </head>
 <body>
   <div id="root"></div>
+  <!-- 
+    We use data-type="module" so the browser handles imports, 
+    and Babel compiles the TSX contents.
+  -->
   <script 
     type="text/babel" 
     data-type="module" 
